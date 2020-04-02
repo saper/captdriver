@@ -23,7 +23,7 @@ As a bonus for users on 64-bit x86 hardware, Captdriver eliminates the
 need to run 32-bit binaries on your 64-bit operating system.
 
 ## Status
-Capdriver is currently admittedly far from complete and many extra 
+Captdriver is currently admittedly far from complete and many extra 
 features are still missing, but it's rather reliable for what it's
 capable of.
 
