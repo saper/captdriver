@@ -27,9 +27,11 @@ Captdriver is currently admittedly far from complete and many extra
 features are still missing, but it's rather reliable for what it's
 capable of.
 
-Three printers are supported: LBP2900, LBP3000 and LBP3010, with any paper
-size from the width and height of an ISO A6 up to US Legal. Only 600dpi
-resolution is available for now.
+Three printers are supported: LBP2900, LBP3000 and LBP3010. 
+*UPDATE*: Only A4 Printing with Plain Paper is available on LBP2900
+and LBP3010.  Support for other sizes and media types on these printers
+have been withdrawn until further notice due to compatibility issues.
+Only 600dpi resolution is available for now.
 
 ## Acknowledgements
 This driver is an onging work in progress, based on the works of
