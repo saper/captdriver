@@ -4,7 +4,6 @@
 *% (C)2020 Moses Chong
 *FormatVersion: "4.3"
 *FileVersion: "0.1.3-emergency-fix-1"
->>>>>>> 0.1.3-pr-emergency-1
 *LanguageVersion: English
 *LanguageEncoding: ISOLatin1
 *PCFileName: "CNLB3K.ppd"
@@ -314,7 +313,6 @@
 *MediaType HeavyH/Heavy Paper H: "<</MediaType(HeavyH)/cupsMediaType 3>>setpagedevice"
 *MediaType Transparency/Transparency: "<</MediaType(Transparency)/cupsMediaType 4>>setpagedevice"
 *MediaType Envelope/Envelope: "<</MediaType(Envelope)/cupsMediaType 5>>setpagedevice"
->>>>>>> 0.1.3-pr-emergency-1
 *CloseUI: *MediaType
 *DefaultFont: Courier
 *Font AvantGarde-Book: Standard "(1.05)" Standard ROM
