@@ -129,7 +129,6 @@ Version 0.1.3-emergency-fix-1
 		MediaSize Statement
 		// End Less Common Sizes
 
->>>>>>> 0.1.3-pr-emergency-1
 		*ModelName "LBP3000 r2c"
 		FileName "Canon-LBP3000.ppd"
 		HWmargins 5mm 5mm 5mm 5mm 
