@@ -24,14 +24,12 @@ need to run 32-bit binaries on your 64-bit operating system.
 
 ## Status
 Captdriver is currently admittedly far from complete and many extra 
-features are still missing, but it's rather reliable for what it's
-capable of.
+features are still missing. Basic printing functionalities are
+supported on three printers: LBP2900, LBP3000 and LBP3010, but with
+major limitations. Currently, the most important goals are print job
+dispatch reliability and correct multi-page size support.
 
-Three printers are supported: LBP2900, LBP3000 and LBP3010. 
-*UPDATE*: Only A4 Printing with Plain Paper is available on LBP2900
-and LBP3010.  Support for other sizes and media types on these printers
-have been withdrawn until further notice due to compatibility issues.
-Only 600dpi resolution is available for now.
+Detailed status reports are posted in the [wiki].
 
 ## Acknowledgements
 This driver is an onging work in progress, based on the works of
@@ -40,15 +38,14 @@ well as Vitaliy Tomin.
 
 ## Installation and Setup
 This software must be manually installed. Please refer to Mounaiban's
-Captdriver Wiki for detailed instructions at https://github.com/mounaiban/captdriver/wiki.
+[Captdriver Wiki for detailed instructions](https://github.com/mounaiban/captdriver/wiki/Building-and-Installing-captdriver:-A-Unified-Guide).
 
 ## Technical Information
-Details of the CAPT format, including printer control
-protocols, status registers and compression algorithms are
-documented in the `SPECS` file. While incomplete and expected to
-contain errors and omissions, help with expanding it and making
-corrections is greatly appreciated. Please also check the [wiki] 
-for more information on the scope and status of this project.
+Details of the CAPT format are documented in the `SPECS` file.
+While incomplete and expected to contain errors and omissions, 
+help with expanding it and making corrections is greatly 
+appreciated. Please also check the [wiki] for detailed information 
+not yet added to this file.
 
 ## Disclaimers
 Please use this driver at your own risk. As with any software licensed
