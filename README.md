@@ -23,18 +23,19 @@ As a bonus for users on 64-bit x86 hardware, Captdriver eliminates the
 need to run 32-bit binaries on your 64-bit operating system.
 
 ## Status
-Captdriver is currently admittedly far from complete and many extra 
-features are still missing. Basic printing functionalities are
-supported on three printers: LBP2900, LBP3000 and LBP3010, but with
-major limitations. Currently, the most important goals are print job
-dispatch reliability and correct multi-page size support.
-
-Detailed status reports are posted in the [wiki].
+Captdriver is currently admittedly far from complete, but three printers
+are currently being recognised: LBP2900, LBP3000 and LBP3010. The driver
+is at a stage where compatibility and usability is subject to change on
+a regular basis, so check the three places: [Releases](https://github.com/mounaiban/captdriver/releases),
+[Issues](https://github.com/mounaiban/captdriver/issues),
+and the [Wiki](https://github.com/mounaiban/captdriver/wiki)
 
 ## Acknowledgements
-This driver is an onging work in progress, based on the works of
-Rildo Pragana, Nicholas Boichat, Alexey Galakhov, Benoit Bolsee as
-well as Vitaliy Tomin.
+This driver is based on the works of Rildo Pragana, Nicholas Boichat,
+Alexey Galakhov, Benoit Bolsee and Vitaliy Tomin. Special thanks to
+the other [contributors](https://github.com/agalakhov/captdriver/graphs/contributors)
+who made this driver possible, and the folks who donated their spare
+time to test and review my edits!
 
 ## Installation and Setup
 This software must be manually installed. Please refer to Mounaiban's
