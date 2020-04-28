@@ -3,15 +3,15 @@
 *%%%% Created by the CUPS PPD Compiler CUPS v2.2.10.
 *% (C)2020 Moses Chong
 *FormatVersion: "4.3"
-*FileVersion: "0.1.3-emergency-fix-1"
+*FileVersion: "0.1.3-e2"
 *LanguageVersion: English
 *LanguageEncoding: ISOLatin1
-*PCFileName: "CNLB2K9.ppd"
+*PCFileName: "CNLB3K10.ppd"
 *Product: "(LBP2900/LBP3010 r2c)"
 *Manufacturer: "Canon Inc"
 *ModelName: "Canon Inc LBP2900/LBP3010 r2c"
 *ShortNickName: "Canon Inc LBP2900/LBP3010 r2c"
-*NickName: "Canon Inc LBP2900/LBP3010 r2c, 0.1.3-emergency-fix-1"
+*NickName: "Canon Inc LBP2900/LBP3010 r2c, 0.1.3-e2"
 *PSVersion: "(3010.000) 0"
 *LanguageLevel: "3"
 *ColorDevice: False
@@ -91,4 +91,4 @@
 *Font Times-Roman: Standard "(1.05)" Standard ROM
 *Font ZapfChancery-MediumItalic: Standard "(1.05)" Standard ROM
 *Font ZapfDingbats: Special "(001.005)" Special ROM
-*% End of CNLB2K9.ppd, 04141 bytes.
+*% End of CNLB3K10.ppd, 04117 bytes.
