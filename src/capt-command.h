@@ -54,14 +54,6 @@ enum capt_command {
 	CAPT_GPIO       = 0xE1A2,
 };
 
-enum capt_sendrecv_progress {
-	NO_SENDRECV     = 0x00,
-	SENDRECV_SENT   = 0x01,
-	SENDRECV_RECVD  = 0x02,
-	RECV_REQUIRED   = 0x04,
-};
-
-
 const char *capt_identify(void);
 
 void capt_send(uint16_t cmd, const void *data, size_t size);
