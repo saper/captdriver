@@ -35,9 +35,14 @@ void page_set_dims(struct page_dims_s *dims, const struct cups_page_header2_s *h
 		unsigned const *res = header->HWResolution;
 		dims->line_size = (cut_width * res[1] / 72)/8;
 		dims->num_lines = cut_height * res[0] / 72;
-		/* Increase line size and count to next larger value divisible by 4 */
-		dims->line_size += dims->line_size % 4;
-		dims->num_lines += dims->num_lines % 4;
+		/* Increase line size to next larger value divisible by 4 */
+		while(dims->line_size & 0x02) {
+			dims->line_size += 1;
+		}
+		/* Increase line count to next larger value divisible by 4 */
+		while(dims->num_lines & 0x02) {
+			dims->num_lines += 1;
+		}
 	}
 	/* 
 		The use of cupsCompression to toggle toner save was inspired by the
