@@ -377,7 +377,7 @@ static void lbp2900_job_epilogue(struct printer_state_s *state)
 	while (1) {
 		const struct capt_status_s *status = lbp2900_get_status(state->ops);
 		if (status->page_completed == status->page_decoding) {
-			send_job_start(4, status->page_completed); /* doin what the windows driver does*/
+			send_job_start(4, status->page_completed);
 			break;
 		}
 		sleep(1);
@@ -399,9 +399,13 @@ static void lbp2900_page_setup(struct printer_state_s *state,
 static void lbp2900_cancel_cleanup(struct printer_state_s *state)
 {
 	(void) state;
+	const struct capt_status_s *status = lbp2900_get_status(state->ops);
+	uint8_t jbuf[2] = { LO(job), HI(job) };
 
 	capt_cleanup();
 	capt_sendrecv(CAPT_GPIO, lbp2900_gpio_init, ARRAY_SIZE(lbp2900_gpio_init), NULL, 0);
+	send_job_start(4, status->page_completed);
+	capt_sendrecv(CAPT_JOB_END, jbuf, 2, NULL, 0);
 }
 
 static void lbp3010_cancel_cleanup(struct printer_state_s *state)
