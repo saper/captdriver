@@ -31,7 +31,7 @@ a regular basis, so check the three places: [Releases](https://github.com/mounai
 and the [Wiki](https://github.com/mounaiban/captdriver/wiki)
 
 ## Acknowledgements
-This driver is based on the works of Rildo Pragana, Nicholas Boichat,
+This driver is based on the works of Rildo Pragana, Nicolas Boichat,
 Alexey Galakhov, Benoit Bolsee and Vitaliy Tomin. Special thanks to
 the other [contributors](https://github.com/agalakhov/captdriver/graphs/contributors)
 who made this driver possible, and the folks who donated their spare
