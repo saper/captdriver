@@ -1,26 +1,20 @@
 # captdriver
 
 ## Foreword
-Are you still using an older Canon laser printer that doesn't support
-network printing, PCL or EPS? Do you use an operating system other than
-macOS or Microsoft Windows, and have trouble getting Canon's drivers to 
-work? Or are you simply averse to the practice of installing 32-bit 
-dependencies on a 64-bit system?
-
 **Captdriver is a free (as in speech) alternative driver** for Canon 
 printers that can only accept the proprietary CAPT data stream format.
-It aims to be a reliable and truly portable alternative driver for
-alternative operating systems such as GNU/Linux. Being free and open
-source, you can take part in its development too, and help with
-expanding support, adding new features, and most importantly, maintaining
-its codebase.
+It aims to be a reliable and truly portable alternative driver. 
+It's free and open source, so you can take part in its development, 
+and help with expanding support, adding new features, and most importantly,
+maintaining its codebase.
 
-As Captdriver is almost completely written in C, and dependent only on
-the Common Unix Printing System (*CUPS*), it is potentially compatible
-with any operating system with a working copy of CUPS.
+As Captdriver is almost completely written in C, and uses the 
+Common Unix Printing System (*CUPS*), it is potentially compatible
+with any operating system with a working copy of CUPS, regardless of
+hardware architecture.
 
-As a bonus for users on 64-bit x86 hardware, Captdriver eliminates the
-need to run 32-bit binaries on your 64-bit operating system.
+As a bonus for users on x86-64 hardware, Captdriver eliminates the
+need to install 32-bit libraries on your 64-bit operating system.
 
 ## Status
 Captdriver is currently admittedly far from complete, but three printers
