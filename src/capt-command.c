@@ -30,7 +30,7 @@
 
 static uint8_t capt_iobuf[0x10000];
 static size_t  capt_iosize;
-uint8_t sendrecv_status = NO_SENDRECV;
+static uint8_t sendrecv_progress = NO_SENDRECV;
 
 static void capt_debug_buf(const char *level, size_t size)
 {
@@ -57,6 +57,9 @@ static void capt_send_buf(void)
 		capt_debug_buf("DEBUG", 128);
 	}
 
+	if (sendrecv_progress && SENDRECV_IN_PROGRESS)
+		sendrecv_progress |= SENDRECV_SEND_STARTED;
+
 	while (iosize) {
 		cups_sc_status_t status;
 		uint8_t tmpbuf[128];
@@ -72,6 +75,8 @@ static void capt_send_buf(void)
 
 		status = cupsSideChannelDoRequest(CUPS_SC_CMD_DRAIN_OUTPUT,
 				(char *) tmpbuf, (int *) &tmpsize, 1.0);
+		if (sendrecv_progress && SENDRECV_IN_PROGRESS)
+			sendrecv_progress |= SENDRECV_SEND_DONE;
 		if (status != CUPS_SC_STATUS_OK) {
 			if (status == CUPS_SC_STATUS_TIMEOUT) {
 				/* Overcome race conditions in usb backend */
@@ -95,6 +100,8 @@ static void capt_recv_buf(size_t offset, size_t expected)
 	}
 	fprintf(stderr, "DEBUG: CAPT: waiting for %u bytes\n", (unsigned) expected);
 	size = cupsBackChannelRead((char *) capt_iobuf + offset, expected, 15.0);
+	if (sendrecv_progress && SENDRECV_IN_PROGRESS)
+		sendrecv_progress |= SENDRECV_RECV_DONE;
 	if (size < 0) {
 		fprintf(stderr, "ERROR: CAPT: no reply from printer\n");
 		exit(1);
@@ -148,7 +155,7 @@ void capt_send(uint16_t cmd, const void *buf, size_t size)
 
 void capt_sendrecv(uint16_t cmd, const void *buf, size_t size, void *reply, size_t *reply_size)
 {
-	sendrecv_status = (NO_SENDRECV | RECV_REQUIRED);
+	sendrecv_progress |= SENDRECV_IN_PROGRESS;
 	capt_send(cmd, buf, size);
 	capt_recv_buf(0, 6);
 	if (capt_iosize != 6 || WORD(capt_iobuf[0], capt_iobuf[1]) != cmd) {
@@ -186,6 +193,7 @@ void capt_sendrecv(uint16_t cmd, const void *buf, size_t size, void *reply, size
 	}
 	if (reply_size)
 		*reply_size = capt_iosize;
+	sendrecv_progress = NO_SENDRECV;
 }
 
 void capt_multi_begin(uint16_t cmd)
@@ -210,12 +218,28 @@ void capt_multi_send(void)
 void capt_cleanup(void)
 {
 	/* For use with handling job cancellations */
-	if (sendrecv_status && (RECV_REQUIRED || SENDRECV_SENT || !SENDRECV_RECVD) ){
-		uint8_t bs = 6;
-		if (capt_iosize > bs)
-			bs = capt_iosize;
-		cupsBackChannelRead(NULL, bs, 2);
-		sendrecv_status = NO_SENDRECV;
+	fprintf(stderr, "DEBUG: CAPT: sendrecv interrupted progress code %u\n", sendrecv_progress);
+	if (sendrecv_progress && SENDRECV_IN_PROGRESS) {
+		uint8_t chk_send_cleanup = (SENDRECV_IN_PROGRESS | SENDRECV_SEND_STARTED);
+		uint8_t chk_recv_cleanup = (SENDRECV_IN_PROGRESS | SENDRECV_SEND_STARTED | SENDRECV_SEND_DONE);
+
+
+		if (sendrecv_progress == chk_send_cleanup) {
+			capt_send_buf();
+			fprintf(stderr, "DEBUG: CAPT: finished interrupted send\n");
+		}
+		if (sendrecv_progress == chk_recv_cleanup) {
+			size_t bytes = 0x10000;
+			size_t bs = 64;
+			size_t reply_size = WORD(capt_iobuf[2], capt_iobuf[3]);
+			if (reply_size > 0)
+				bytes = reply_size;
+			while(bytes > 0) {
+				bytes -= bs;
+				cupsBackChannelRead(NULL, bs, 0.01);
+			}
+			fprintf(stderr, "DEBUG: CAPT: finished interrupted recv\n");
+		}
 	}
 }
 

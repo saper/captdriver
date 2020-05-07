@@ -212,13 +212,8 @@ static void do_cancel(int s)
 	(void) s;
 	fprintf(stderr, "DEBUG: CAPT: begin job cancellation cleanup\n");
 
-	if (ops) {
-		if (in_job) {
-			if (ops->job_epilogue)
-				ops->job_epilogue(state);
-		}
+	if (ops)
 		ops->cancel_cleanup(state);
-	}
 
 	if (raster) {
 		cupsRasterClose(raster);
