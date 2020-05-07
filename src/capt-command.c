@@ -86,7 +86,6 @@ static void capt_send_buf(void)
 					(int) status);
 				exit(1);
 			}
-			sendrecv_status |= SENDRECV_SENT;
 		}
 	}
 }
@@ -107,7 +106,6 @@ static void capt_recv_buf(size_t offset, size_t expected)
 		exit(1);
 	}
 	capt_iosize = offset + size;
-	sendrecv_status |= SENDRECV_RECVD;
 }
 
 const char *capt_identify(void)
