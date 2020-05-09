@@ -29,7 +29,7 @@ enum printer_support {
 	FULLY,
 };
 
-bool job_cancel;
+static bool job_cancel;
 
 struct page_dims_s;
 

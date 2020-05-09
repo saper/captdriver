@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool job_cancel = false;
+static bool job_cancel = false;
 
 struct printer_rec {
 	struct printer_rec *next;
