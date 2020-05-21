@@ -16,14 +16,19 @@ Copyright "(C)2020 Moses Chong"
 ColorModel "Gray/Grayscale" k chunky 2 
 Filter application/vnd.cups-raster 1 rastertocapt 
 *Manufacturer "Canon"
-Version 0.1.4
+Version 0.1.4-m5
 {
 	Font *
 	
-	// Toner Save Option
+	/* Toner Save Option */
 	Option "captTonerSave/Toner Save" Boolean AnySetup 10 
 		*Choice False/Disabled "<</cupsCompression 0>>setpagedevice"
 		Choice True/Enabled "<</cupsCompression 1>>setpagedevice"
+
+	/* Pause After Each Page Option */
+	Option "pauseAfterEachPage/Pause After Each Page" Boolean AnySetup 11
+		*Choice False/No "<</cupsInteger1 0>>setpagedevice"
+		Choice True/Yes "<</cupsInteger1 1>>setpagedevice"
 
 	*Resolution k 1 70 592 0 "600dpi/600 DPI"
 	{

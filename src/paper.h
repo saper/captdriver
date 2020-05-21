@@ -33,6 +33,7 @@ struct page_dims_s {
 	unsigned toner_save;
 	unsigned h_dpi;
 	unsigned w_dpi;
+	bool pause;
 	/* set by printer ops */
 	unsigned line_size;
 	unsigned band_size;
