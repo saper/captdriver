@@ -189,7 +189,7 @@ static bool lbp2900_page_prologue(struct printer_state_s *state, const struct pa
 	const struct capt_status_s *status;
 	size_t s;
 	uint8_t buf[16];
-
+	uint8_t sz = dims->capt_size_id;
 	uint8_t save = dims->toner_save;
 	uint8_t fm = 0x00; /* fuser mode (temperature?) */
 	uint8_t air = 0x02; /* automatic image refinement */
@@ -224,7 +224,7 @@ static bool lbp2900_page_prologue(struct printer_state_s *state, const struct pa
 
 	uint8_t pageparms[] = {
 		/* Bytes 0-21 (0x00 to 0x15) */
-		0x00, 0x00, 0x30, 0x2A, /* sz */ 0x13, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x30, 0x2A, sz, 0x00, 0x00, 0x00,
 		0x1F, 0x1F, 0x1F, 0x1F, dims->media_type, /* adapt */ 0x11, 0x04, 0x00,
 		0x01, 0x01, air, save, 0x00, 0x00,
 		/* Bytes 22-33 (0x16 to 0x21) */
@@ -408,6 +408,60 @@ static void lbp2900_page_setup(struct printer_state_s *state,
 		dims->paper_width = 3496;
 		dims->paper_height = 4960;
 	}
+	else if ((dims->paper_width_pts == 516) && (dims->paper_height_pts == 729)) {
+		/* B5 */
+		dims->capt_size_id = 0x07;
+		dims->paper_width = 4298;
+		dims->paper_height = 6070;
+	}
+	else if ((dims->paper_width_pts == 522) && (dims->paper_height_pts == 756)) {
+		/* Executive */
+		dims->capt_size_id = 0x0A;
+		dims->paper_width = 4350;
+		dims->paper_height = 6300;
+	}
+	else if ((dims->paper_width_pts == 612) && (dims->paper_height_pts == 1008)) {
+		/* Legal */
+		dims->capt_size_id = 0x0C;
+		dims->paper_width = 5100;
+		dims->paper_height = 8400;
+	}
+	else if ((dims->paper_width_pts == 612) && (dims->paper_height_pts == 792)) {
+		/* Letter */
+		dims->capt_size_id = 0x0D;
+		dims->paper_width = 5100;
+		dims->paper_height = 6600;
+	}
+	else if ((dims->paper_width_pts == 459) && (dims->paper_height_pts == 649)) {
+		/* C5 Envelope */
+		dims->capt_size_id = 0x15;
+		dims->paper_width = 3826;
+		dims->paper_height = 5408;
+	}
+	else if ((dims->paper_width_pts == 297) && (dims->paper_height_pts == 684)) {
+		/* COM10 Envelope */
+		dims->capt_size_id = 0x16;
+		dims->paper_width = 2478;
+		dims->paper_height = 5700;
+	}
+	else if ((dims->paper_width_pts == 279) && (dims->paper_height_pts == 540)) {
+		/* Monarch Envelope */
+		dims->capt_size_id = 0x17;
+		dims->paper_width = 2328;
+		dims->paper_height = 4500;
+	}
+	else if ((dims->paper_width_pts == 312) && (dims->paper_height_pts == 624)) {
+		/* DL Envelope */
+		dims->capt_size_id = 0x18;
+		dims->paper_width = 2598;
+		dims->paper_height = 5196;
+	}
+	else if ((dims->paper_width_pts == 216) && (dims->paper_height_pts == 360)) {
+		/* Index Card 3x5" */
+		dims->capt_size_id = 0x40;
+		dims->paper_width = 1800;
+		dims->paper_height = 3000;
+	}
 	else {
 		/* custom sizes */
 		dims->capt_size_id = 0x13;
@@ -418,11 +472,27 @@ static void lbp2900_page_setup(struct printer_state_s *state,
 	switch(dims->capt_size_id) {
 		case 0x02:
 		case 0x03:
+		case 0x07:
+		case 0x0A:
+		case 0x0C:
+		case 0x0D:
+			/* standard page size bounds */
 			dims->bound_a = 0x0078;
 			dims->bound_b = 0x0060;
 			dims->num_lines = dims->paper_height - (dims->bound_a*2) + 2;
 			break;
+		case 0x15:
+		case 0x16:
+		case 0x17:
+		case 0x18:
+		case 0x40:
+			/* standard envelope size bounds */
+			dims->bound_a = 0x00EC;
+			dims->bound_b = 0x00EC;
+			dims->num_lines = dims->paper_height - (dims->bound_a*2);
+			break;
 		default:
+			/* custom page size bounds */
 			dims->bound_a = 0x0076;
 			dims->bound_b = 0x005E;
 			dims->num_lines = dims->paper_height - (dims->bound_a*2);
@@ -430,7 +500,7 @@ static void lbp2900_page_setup(struct printer_state_s *state,
 	}
 
 	dims->line_size = (dims->paper_width - (dims->bound_a*2) ) / 8;
-	while(dims->line_size & 0x02)
+	while(dims->line_size & 0x02) /* next int divisible by 4 */
 		dims->line_size += 1;
 
 	dims->band_size = dims->num_lines/8;
@@ -534,6 +604,7 @@ static struct lbp2900_ops_s lbp3000_ops = {
 };
 
 register_printer("LBP3000", lbp3000_ops.ops, EXPERIMENTAL);
+
 static struct lbp2900_ops_s lbp3010_ops = {
 	.ops = {
 		.job_prologue = lbp3010_job_prologue,
@@ -551,3 +622,4 @@ static struct lbp2900_ops_s lbp3010_ops = {
 };
 
 register_printer("LBP3010/LBP3018/LBP3050", lbp3010_ops.ops, EXPERIMENTAL);
+
