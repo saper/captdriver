@@ -99,7 +99,7 @@ static const uint8_t lbp2900_gpio_init[] = {
 	0x00, 0x00, 0x00, 0x00,
 };
 
-static const uint8_t lbp_3010_gpio_blink[] = {
+static const uint8_t lbp3010_gpio_blink[] = {
         /* led */ 0x31, 0x00, 0x00, /* S6 */ 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* S7 */ 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
@@ -189,7 +189,7 @@ static bool lbp2900_page_prologue(struct printer_state_s *state, const struct pa
 	const struct capt_status_s *status;
 	size_t s;
 	uint8_t buf[16];
-
+	uint8_t sz = dims->capt_size_id;
 	uint8_t save = dims->toner_save;
 	uint8_t fm = 0x00; /* fuser mode (temperature?) */
 	uint8_t air = 0x02; /* automatic image refinement */
@@ -224,12 +224,12 @@ static bool lbp2900_page_prologue(struct printer_state_s *state, const struct pa
 
 	uint8_t pageparms[] = {
 		/* Bytes 0-21 (0x00 to 0x15) */
-		0x00, 0x00, 0x30, 0x2A, /* sz */ 0x13, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x30, 0x2A, sz, 0x00, 0x00, 0x00,
 		0x1F, 0x1F, 0x1F, 0x1F, dims->media_type, /* adapt */ 0x11, 0x04, 0x00,
 		0x01, 0x01, air, save, 0x00, 0x00,
 		/* Bytes 22-33 (0x16 to 0x21) */
-		LO(dims->margin_height), HI(dims->margin_height),/* set print area */
-		LO(dims->margin_width), HI(dims->margin_width),
+		LO(dims->bound_a), HI(dims->bound_a),/* set print area */
+		LO(dims->bound_b), HI(dims->bound_b),
 		LO(dims->line_size), HI(dims->line_size),
 		LO(dims->num_lines), HI(dims->num_lines),
 		LO(dims->paper_width), HI(dims->paper_width),
@@ -392,8 +392,137 @@ static void lbp2900_page_setup(struct printer_state_s *state,
 	(void) state;
 	(void) width;
 	(void) height;
-	dims->auto_set = true; 
-	dims->band_size = 70;
+
+	/* Override dims for standard sizes to maintain consistency
+       with the original drivers
+    */
+	if ((dims->paper_width_pts == 595) && (dims->paper_height_pts == 842)) {
+		/* A4 */
+		dims->capt_size_id = 0x02; 
+		dims->paper_width = 4960;
+		dims->paper_height = 7014;
+	}
+	else if ((dims->paper_width_pts == 420) && (dims->paper_height_pts == 595)) {
+		/* A5 */
+		dims->capt_size_id = 0x03; 
+		dims->paper_width = 3496;
+		dims->paper_height = 4960;
+	}
+	else if ((dims->paper_width_pts == 516) && (dims->paper_height_pts == 729)) {
+		/* B5 */
+		dims->capt_size_id = 0x07;
+		dims->paper_width = 4298;
+		dims->paper_height = 6070;
+	}
+	else if ((dims->paper_width_pts == 522) && (dims->paper_height_pts == 756)) {
+		/* Executive */
+		dims->capt_size_id = 0x0A;
+		dims->paper_width = 4350;
+		dims->paper_height = 6300;
+	}
+	else if ((dims->paper_width_pts == 612) && (dims->paper_height_pts == 1008)) {
+		/* Legal */
+		dims->capt_size_id = 0x0C;
+		dims->paper_width = 5100;
+		dims->paper_height = 8400;
+	}
+	else if ((dims->paper_width_pts == 612) && (dims->paper_height_pts == 792)) {
+		/* Letter */
+		dims->capt_size_id = 0x0D;
+		dims->paper_width = 5100;
+		dims->paper_height = 6600;
+	}
+	else if ((dims->paper_width_pts == 459) && (dims->paper_height_pts == 649)) {
+		/* C5 Envelope */
+		dims->capt_size_id = 0x15;
+		dims->paper_width = 3826;
+		dims->paper_height = 5408;
+	}
+	else if ((dims->paper_width_pts == 297) && (dims->paper_height_pts == 684)) {
+		/* COM10 Envelope */
+		dims->capt_size_id = 0x16;
+		dims->paper_width = 2478;
+		dims->paper_height = 5700;
+	}
+	else if ((dims->paper_width_pts == 279) && (dims->paper_height_pts == 540)) {
+		/* Monarch Envelope */
+		dims->capt_size_id = 0x17;
+		dims->paper_width = 2328;
+		dims->paper_height = 4500;
+	}
+	else if ((dims->paper_width_pts == 312) && (dims->paper_height_pts == 624)) {
+		/* DL Envelope */
+		dims->capt_size_id = 0x18;
+		dims->paper_width = 2598;
+		dims->paper_height = 5196;
+	}
+	else if ((dims->paper_width_pts == 216) && (dims->paper_height_pts == 360)) {
+		/* Index Card 3x5" */
+		dims->capt_size_id = 0x40;
+		dims->paper_width = 1800;
+		dims->paper_height = 3000;
+	}
+	else {
+		/* custom sizes */
+		dims->capt_size_id = 0x13;
+		dims->paper_height = dims->paper_height_pts * dims->h_dpi / 72;
+		dims->paper_width = dims->paper_width_pts * dims->w_dpi / 72;
+	}
+
+	switch(dims->capt_size_id) {
+		case 0x02:
+		case 0x03:
+		case 0x07:
+		case 0x0A:
+		case 0x0C:
+		case 0x0D:
+			/* standard page size bounds */
+			dims->bound_a = 0x0078;
+			dims->bound_b = 0x0060;
+			dims->num_lines = dims->paper_height - (dims->bound_a*2) + 2;
+			break;
+		case 0x15:
+		case 0x16:
+		case 0x17:
+		case 0x18:
+		case 0x40:
+			/* standard envelope size bounds */
+			dims->bound_a = 0x00EC;
+			dims->bound_b = 0x00EC;
+			dims->num_lines = dims->paper_height - (dims->bound_a*2);
+			break;
+		default:
+			/* custom page size bounds */
+			dims->bound_a = 0x0076;
+			dims->bound_b = 0x005E;
+			dims->num_lines = dims->paper_height - (dims->bound_a*2);
+			break;
+	}
+
+	dims->line_size = (dims->paper_width - (dims->bound_a*2) ) / 8;
+	while(dims->line_size & 0x02) /* next int divisible by 4 */
+		dims->line_size += 1;
+
+	dims->band_size = dims->num_lines/8;
+	fprintf(stderr, "DEBUG: CAPT: b_a=%u, b_b=%u\n",dims->bound_a,dims->bound_b);
+}
+
+static void lbp2900_cancel_cleanup(struct printer_state_s *state)
+{
+	(void) state;
+	const struct capt_status_s *status = lbp2900_get_status(state->ops);
+	uint8_t jbuf[2] = { LO(job), HI(job) };
+
+	capt_cleanup();
+	capt_sendrecv(CAPT_GPIO, lbp2900_gpio_init, ARRAY_SIZE(lbp2900_gpio_init), NULL, 0);
+	send_job_start(4, status->page_completed);
+	capt_sendrecv(CAPT_JOB_END, jbuf, 2, NULL, 0);
+}
+
+static void lbp3010_cancel_cleanup(struct printer_state_s *state)
+{
+	(void) state;
+	capt_sendrecv(CAPT_GPIO, lbp3010_gpio_init, ARRAY_SIZE(lbp3010_gpio_init), NULL, 0);
 }
 
 static void lbp2900_cancel_cleanup(struct printer_state_s *state)
@@ -438,7 +567,7 @@ static void lbp3010_wait_user(struct printer_state_s *state)
 {
 	(void) state;
 
-	capt_sendrecv(CAPT_GPIO, lbp_3010_gpio_blink, ARRAY_SIZE(lbp_3010_gpio_blink), NULL, 0);
+	capt_sendrecv(CAPT_GPIO, lbp3010_gpio_blink, ARRAY_SIZE(lbp3010_gpio_blink), NULL, 0);
 	lbp2900_wait_ready(state->ops);
 
 	while (1) {
@@ -510,3 +639,4 @@ static struct lbp2900_ops_s lbp3010_ops = {
 };
 
 register_printer("LBP3010/LBP3018/LBP3050", lbp3010_ops.ops, EXPERIMENTAL);
+

@@ -272,7 +272,8 @@ static void do_print(int fd)
 			ops->page_setup(state, &cached_page->dims,
 					header.cupsWidth, header.cupsHeight);
 
-			page_set_dims(&cached_page->dims, &header);
+			if ((state->ipage != 1) && (cached_page->dims.pause))
+				ops->wait_user(state);
 
 			compress_page_data(state, cached_page, raster, &header);
 		}
