@@ -35,7 +35,6 @@ struct page_dims_s {
 	unsigned w_dpi;
 	bool pause;
 	/* set by printer ops */
-	bool auto_set;
 	unsigned line_size;
 	unsigned band_size;
 	unsigned num_lines;
