@@ -30,9 +30,5 @@ void page_set_dims(struct page_dims_s *dims, const struct cups_page_header2_s *h
 	dims->h_dpi = header->HWResolution[0];
 	dims->w_dpi = header->HWResolution[1];
 	dims->pause = (header->cupsInteger[1] != 0);
-	/* 
-		The use of cupsCompression to toggle toner save was inspired by the
-	 	use of the same attribute to control darkness in label printer drivers.
-	*/
-	dims->toner_save = header->cupsCompression; 
+	dims->toner_save = header->cupsInteger[0]; 
 }

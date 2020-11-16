@@ -22,8 +22,8 @@ Version 0.1.4-m5
 	
 	/* Toner Save Option */
 	Option "captTonerSave/Toner Save" Boolean AnySetup 10 
-		*Choice False/Disabled "<</cupsCompression 0>>setpagedevice"
-		Choice True/Enabled "<</cupsCompression 1>>setpagedevice"
+		*Choice False/Disabled "<</cupsInteger0 0>>setpagedevice"
+		Choice True/Enabled "<</cupsInteger0 1>>setpagedevice"
 
 	/* Pause After Each Page Option */
 	Option "pauseAfterEachPage/Pause After Each Page" Boolean AnySetup 11
