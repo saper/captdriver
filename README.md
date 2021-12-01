@@ -59,7 +59,7 @@ Full terms and conditions are detailed in the file named `COPYING`.
 This is unofficial software not endorsed by Canon Inc. or any of its
 affiliates.
 
-CUPS and macOS are trademarks of Apple Inc.
+macOS is a registered trademark of Apple Inc, registered in the U.S. and other countries and regions.
 
 Windows is a trademark of Microsoft Corporation.
 
