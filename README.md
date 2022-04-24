@@ -1,5 +1,24 @@
 # captdriver
 
+📣 **IMPORTANT NOTE to Fellow Hackers who Have Forked This Repo** 📣
+
+A rebase has been scheduled for this repository. Changes that you have
+made may not easily merge after the rebase. However, I will try my best
+to preserve the current state of the repository (maybe in an alternate
+branch?).
+
+A definitve timeline for the rebase will be given at a later date.
+
+This is to incorporate changes from unexpected pull requests that got
+[merged into Alexey's original repo](https://github.com/agalakhov/captdriver/commits/master),
+specifically #39 to #45. These PRs add most features that were previously
+only available on this fork, along with updates to SPECS and the build
+files. However, this fork has diverged enough to make a trivial merge 
+impossible.
+
+The upcoming rebase aims to restore similarity with the original codebase
+and the ability to transfer enhancements and bugfixes between the two repos.
+
 ## Foreword
 **Captdriver is a free (as in speech) alternative driver** for Canon 
 printers that can only accept the proprietary CAPT data stream format.
