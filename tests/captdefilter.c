@@ -1,4 +1,3 @@
-
 #include "word.h"
 #include "hiscoa-decompress.h"
 
@@ -62,6 +61,8 @@ static void dump(const uint8_t *buf, size_t size)
 
 static void decode_hiscoa_params(const uint8_t *buf, size_t size)
 {
+	(void) size;
+
 	hiscoa_params.origin_3 = (int8_t)buf[0];
 	hiscoa_params.origin_5 = (int8_t)buf[1];
 	/* buf[2] - ??? */
@@ -99,11 +100,19 @@ static void decode_hiscoa_band(const uint8_t *buf, size_t size)
 	unsigned lines = WORD(buf[2], buf[3]);
 	decode_hiscoa_band_data(buf + 4, size - 4, lines);
 }
+
 static void decode_hiscoa_band2(const uint8_t *buf, size_t size)
 {
-	unsigned lines = WORD_(buf[2], buf[3]);
+	unsigned lines = WORD(buf[2], buf[3]);
+	decode_hiscoa_band_data(buf + 6, size - 6, lines);
+}
+
+static void decode_hiscoa_band3(const uint8_t *buf, size_t size)
+{
+	unsigned lines = WORD(buf[2], buf[3]);
 	decode_hiscoa_band_data(buf + 8, size - 8, lines);
 }
+
 static void dispatch(uint16_t cmd, const uint8_t *buf, size_t size)
 {
 	switch (cmd) {
@@ -139,19 +148,19 @@ static void dispatch(uint16_t cmd, const uint8_t *buf, size_t size)
 			dump(buf, 16);
 		} else {
 			fprintf(stderr, "  -(Hi-SCoA data from printer debug)-\n");
-			dump(buf, 4);
+			dump(buf, 16);
 			decode_hiscoa_band_data(buf, size, 70);
 		}
 		break;
 	case 0x8000:
 		fprintf(stderr, "  -(Hi-SCoA data)-\n");
 		dump(buf, 4);
-		decode_hiscoa_band(buf, size);
+		decode_hiscoa_band2(buf, size);
 		break;
 	case 0x8200:
-		fprintf(stderr, "  -(Hi-SCoA data 0x8200)-\n");
+		fprintf(stderr, "  -(Hi-SCoA data)-\n");
 		dump(buf, 4);
-		decode_hiscoa_band2(buf, size);
+		decode_hiscoa_band3(buf, size);
 		break;
 	case 0xC0A4:
 		fprintf(stderr, "  --end--\n");
@@ -165,7 +174,6 @@ static void dispatch(uint16_t cmd, const uint8_t *buf, size_t size)
 
 int main(int argc, char **argv)
 {
-	unsigned iband;
 	static uint8_t buf[1<<20];
 
 	FILE *input = stdin;
@@ -197,14 +205,19 @@ int main(int argc, char **argv)
 		pos = 4;
 		cmd = WORD(buf[0], buf[1]);
 		switch (cmd) {
+		case 0x8000:
+			fread(buf + pos, 1, 2, input);
+			pos += 2;
+			len = WORD(buf[4], buf[5]);
+			len <<= 16;
+			len += WORD(buf[2], buf[3]);
+			break;
 		case 0x8200:
 			fread(buf + pos, 1, 4, input);
 			pos += 4;
 			len = WORD(buf[6], buf[7]);
 			len <<= 16;
 			len += WORD(buf[4], buf[5]);
-			pos=0;
-			fseek(input, -8, SEEK_CUR);
 			break;
 		default:
 			len = WORD(buf[2], buf[3]);
@@ -212,7 +225,7 @@ int main(int argc, char **argv)
 		}
 		fprintf(stderr, "CMD %04X len=%u\n", cmd, len);
 		if (fread(buf + pos, 1, len - pos, input) != len - pos) {
-			fprintf(stderr, "! unable to read %u bytes\n", len - pos);
+			fprintf(stderr, "! unable to read %li bytes\n", len - pos);
 			break;
 		}
 		dispatch(cmd, buf + pos, len - pos);

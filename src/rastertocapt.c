@@ -42,11 +42,10 @@ struct band_list_s {
 };
 
 /* printer and job state */
-struct cached_page_s *cached_page = NULL;
-cups_raster_t *raster;
-bool in_job = false;
 const struct printer_ops_s *ops;
 struct printer_state_s *state = NULL;
+struct cached_page_s *cached_page = NULL;
+cups_raster_t *raster;
 
 /* compressor state */
 uint8_t *linebuf = NULL;
@@ -90,7 +89,7 @@ static void free_state(void)
 	}
 }
 
-static void free_comp_buffers(void)
+static void free_buffers(void)
 {
 	if (compbuf) {
 		free(compbuf);
@@ -115,7 +114,6 @@ static void compress_page_data(struct printer_state_s *state,
 	const unsigned compsize = 2 * dims->line_size * dims->band_size;
 
 	struct band_list_s *last_band = NULL;
-
 	unsigned i;
 	unsigned iband;
 
@@ -176,7 +174,7 @@ static void compress_page_data(struct printer_state_s *state,
 			memcpy(bandbuf + iline * dims->line_size + shiftb, linebuf + shiftl, csize);
 		}
 		size = state->ops->compress_band(state, compbuf, compsize, bandbuf, dims->line_size, nlines);
-		new_band = calloc(1, sizeof_struct_band_list_s(size)); /* freed by free_cached_page() */
+		new_band = calloc(1, sizeof_struct_band_list_s(size));
 		if (! new_band)
 			abort();
 		new_band->size = size;
@@ -193,7 +191,7 @@ static void compress_page_data(struct printer_state_s *state,
 	for (i = dims->num_lines; i < header->cupsHeight; ++i)
 		cupsRasterReadPixels(raster, linebuf, header->cupsBytesPerLine);
 
-	free_comp_buffers();
+	free_buffers();
 }
 
 static void send_page_data(struct printer_state_s *state, const struct cached_page_s *page)
@@ -220,7 +218,7 @@ static void do_cancel(int s)
 		raster = NULL;
 	}
 
-	free_comp_buffers();
+	free_buffers();
 
 	if (cached_page) {
 		free_cached_page(cached_page);
@@ -236,7 +234,7 @@ static void do_cancel(int s)
 
 static void do_print(int fd)
 {
-
+	bool in_job = false;
 	ops = printer_detect();
 
 	if (ops->alloc_state)
@@ -259,9 +257,6 @@ static void do_print(int fd)
 			if (! cupsRasterReadHeader2(raster, &header))
 				break; /* no more pages */
 
-			if (job_cancel)
-				break;
-
 			cached_page = calloc(1, sizeof(struct cached_page_s));
 			if (! cached_page)
 				abort();
@@ -272,9 +267,6 @@ static void do_print(int fd)
 
 			ops->page_setup(state, &cached_page->dims,
 					header.cupsWidth, header.cupsHeight);
-
-			if ((state->ipage != 1) && (cached_page->dims.pause))
-				ops->wait_user(state);
 
 			compress_page_data(state, cached_page, raster, &header);
 		}
@@ -304,6 +296,7 @@ static void do_print(int fd)
 
 		fprintf(stderr, "DEBUG: CAPT: rastertocapt: sending page data\n");
 		send_page_data(state, cached_page);
+
 		fprintf(stderr, "DEBUG: CAPT: rastertocapt: end page %u\n", state->ipage);
 		if (ops->page_epilogue) {
 			bool ok = ops->page_epilogue(state, &cached_page->dims);
@@ -317,7 +310,12 @@ static void do_print(int fd)
 		page_printed = true;
 
 		if (page_printed) {
-			free_cached_page(cached_page);
+			while (cached_page->bands) {
+				void *p = cached_page->bands;
+				cached_page->bands = cached_page->bands->next;
+				free(p);
+			}
+			free(cached_page);
 			cached_page = NULL;
 		}
 	}
@@ -340,23 +338,23 @@ static void do_print(int fd)
 int main(int argc, char *argv[])
 {
 
-	#if POSIX_C_SOURCE >= 199309L
-		struct sigaction act_ign;
-		struct sigaction act_cancel;
+#if POSIX_C_SOURCE >= 199309L
+	struct sigaction act_ign;
+	struct sigaction act_cancel;
 
-		/* ignore SIGPIPE */
-		act_ign.sa_handler = SIG_IGN;
-		sigemptyset(&act_ign.sa_mask);
-		sigaction(SIGPIPE, &act_ign, NULL);
-		/* handle SIGTERM */
-		act_cancel.sa_handler = do_cancel();
-		sigemptyset(&act_cancel.sa_mask);
-		sigaddset(&act_cancel.sa_mask, SIGINT);
-		sigaction(SIGTERM, &act_cancel, NULL);
-	#else
-		signal(SIGPIPE, SIG_IGN);
-		signal(SIGTERM, do_cancel);
-	#endif
+	/* ignore SIGPIPE */
+	act_ign.sa_handler = SIG_IGN;
+	sigemptyset(&act_ign.sa_mask);
+	sigaction(SIGPIPE, &act_ign, NULL);
+	/* handle SIGTERM */
+	act_cancel.sa_handler = do_cancel();
+	sigemptyset(&act_cancel.sa_mask);
+	sigaddset(&act_cancel.sa_mask, SIGINT);
+	sigaction(SIGTERM, &act_cancel, NULL);
+#else
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGTERM, do_cancel);
+#endif
 
 	int fd = 0;
 

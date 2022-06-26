@@ -59,6 +59,7 @@ static void capt_send_buf(void)
 	}
 
 	while (iosize) {
+		cups_sc_status_t status;
 		uint8_t tmpbuf[128];
 		size_t tmpsize = sizeof(tmpbuf);
 		size_t sendsize = iosize;
@@ -70,16 +71,15 @@ static void capt_send_buf(void)
 		iosize -= sendsize;
 		fflush(stdout);
 
-		last_send_status = cupsSideChannelDoRequest(CUPS_SC_CMD_DRAIN_OUTPUT,
+		status = cupsSideChannelDoRequest(CUPS_SC_CMD_DRAIN_OUTPUT,
 				(char *) tmpbuf, (int *) &tmpsize, 1.0);
-
-		if (last_send_status != CUPS_SC_STATUS_OK) {
-			if (last_send_status == CUPS_SC_STATUS_TIMEOUT) {
+		if (status != CUPS_SC_STATUS_OK) {
+			if (status == CUPS_SC_STATUS_TIMEOUT) {
 				/* Overcome race conditions in usb backend */
 				fprintf(stderr, "DEBUG: CAPT: output already empty, not drained\n");
 			} else {
 				fprintf(stderr, "ERROR: CAPT: no reply from backend, err=%i\n",
-					(int) last_send_status);
+					(int) status);
 				exit(1);
 			}
 		}
@@ -147,9 +147,6 @@ void capt_send(uint16_t cmd, const void *buf, size_t size)
 
 void capt_sendrecv(uint16_t cmd, const void *buf, size_t size, void *reply, size_t *reply_size)
 {
-	sendrecv_started = true;
-	last_send_status = CUPS_SC_STATUS_NONE;
-
 	capt_send(cmd, buf, size);
 	capt_recv_buf(0, 6);
 	if (capt_iosize != 6 || WORD(capt_iobuf[0], capt_iobuf[1]) != cmd) {
@@ -187,9 +184,6 @@ void capt_sendrecv(uint16_t cmd, const void *buf, size_t size, void *reply, size
 	}
 	if (reply_size)
 		*reply_size = capt_iosize;
-
-	sendrecv_started = false;
-	last_send_status = CUPS_SC_STATUS_NONE;
 }
 
 void capt_multi_begin(uint16_t cmd)
@@ -236,4 +230,3 @@ void capt_cleanup(void)
 	sendrecv_started = false;
 	}
 }
-
