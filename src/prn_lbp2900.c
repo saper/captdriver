@@ -207,8 +207,8 @@ static void lbp6000_job_prologue(struct printer_state_s *state)
 
 	capt_sendrecv(CAPT_GPIO, lbp3010_gpio_init, ARRAY_SIZE(lbp3010_gpio_init), NULL, 0);
 	lbp2900_wait_ready(state->ops);
-    
-	capt_sendrecv(CAPT3_UNK_0, lbp6000_init, ARRAY_SIZE(lbp6000_init), NULL, 0);
+
+	capt_sendrecv(CAPT_LBP6000_SETUP_0, lbp6000_init, ARRAY_SIZE(lbp6000_init), NULL, 0);
 	lbp2900_wait_ready(state->ops);
 
 	send_job_start(1, 0);
