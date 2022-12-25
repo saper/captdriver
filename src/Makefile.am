@@ -17,4 +17,4 @@ rastertocapt_LDADD = $(CUPS_LIBS)
 
 nodist_data_DATA = Makefile.in
 
-AM_CFLAGS = -std=c99 -Wall -Wextra -pedantic $(CUPS_CFLAGS)
+AM_CFLAGS = -Wall -Wextra $(CUPS_CFLAGS)

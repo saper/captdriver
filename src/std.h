@@ -19,7 +19,6 @@
 
 #pragma once
 
-#define _POSIX_C_SOURCE 199309L /* try removing this if build fails */
 
 #include <stdbool.h>
 #include <stddef.h>
